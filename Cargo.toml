@@ -1,0 +1,9 @@
+[package]
+name = "slbench"
+version = "0.1.0"
+authors = ["michael storm angerman"]
+edition = "2021"
+
+[dependencies]
+csv = "1.2"
+serde = { version = "1", features = ["derive"] }
