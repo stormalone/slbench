@@ -18,12 +18,17 @@ fn read_from_file(path: &str) -> Result<(), Box<dyn Error>> {
     // record structure
     for result in reader.records() {
         let record: csv::StringRecord = result?;
-        let record_iter = record.iter();
-        for val in record_iter {
-            println!("{}", val);
-        }
-
         //println!("{:?}", record);
+        let record_iter = record.iter();
+
+        let vec: Vec<_> = record_iter.clone().collect();
+        println!("{:?}", vec.len());
+
+        for val in record_iter {
+            if val != "" {
+                println!("{}", val);
+            }
+        }
     }
 
     Ok(())
