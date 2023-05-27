@@ -17,9 +17,13 @@ fn read_from_file(path: &str) -> Result<(), Box<dyn Error>> {
     // `.records` return an iterator of the internal
     // record structure
     for result in reader.records() {
-        let record = result?;
+        let record: csv::StringRecord = result?;
+        let record_iter = record.iter();
+        for val in record_iter {
+            println!("{}", val);
+        }
 
-        println!("{:?}", record);
+        //println!("{:?}", record);
     }
 
     Ok(())
