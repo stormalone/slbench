@@ -1,9 +1,24 @@
 [package]
-name = "slbench"
+name = "datafusion-benchmarks"
 version = "0.1.0"
 authors = ["michael storm angerman"]
 edition = "2021"
 
 [dependencies]
+arrow = { version = "39.0.0", features = ["prettyprint"] }
 csv = "1.2"
-serde = { version = "1", features = ["derive"] }
+datafusion = "25.0.0"
+env_logger = "0.10"
+futures = "0.3"
+mimalloc = { version = "0.1", optional = true, default-features = false }
+num_cpus = "1.13.0"
+parquet = { version = "39.0.0", features = ["arrow", "async", "object_store"] }
+serde = { version = "1.0.136", features = ["derive"] }
+serde_json = "1.0.78"
+snmalloc-rs = { version = "0.3", optional = true }
+structopt = { version = "0.3", default-features = false }
+#test-utils = { path = "../test-utils/", version = "0.1.0" }
+tokio = { version = "^1.0", features = ["macros", "rt", "rt-multi-thread", "parking_lot"] }
+
+[dev-dependencies]
+datafusion-proto = "25.0.0"
