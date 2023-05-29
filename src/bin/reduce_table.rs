@@ -99,26 +99,11 @@ fn main() {
     let config = Rtconfig::parse();
     println!("{}", config.row_capacity);
 
-    let mut counter = 0;
-
     convert_tbl(
         config.input_path.to_str().unwrap(),
         config.output_path.to_str().unwrap(),
         config.row_capacity,
     );
-
-    if let Ok(lines) = read_lines("./data/lineitem.tbl") {
-        // Consumes the iterator, returns an (Optional) String
-        for line in lines {
-            if counter >= config.row_capacity {
-                break;
-            };
-            counter += 1;
-            if let Ok(ip) = line {
-                println!("{}", ip);
-            }
-        }
-    }
 }
 
 // The output is wrapped in a Result to allow matching on errors
@@ -132,7 +117,7 @@ where
 }
 
 /// Conver tbl (csv) file to parquet
-pub fn convert_tbl(input_path: &str, output_path: &str, _row_capacity: usize) {
+pub fn convert_tbl(input_path: &str, output_path: &str, row_capacity: usize) {
     //let input_root_path = Path::new(output_path);
     //let output_root_path = Path::new(output_path);
     //println!("{:? :?}", input_root_path, output_root_path);
@@ -143,6 +128,20 @@ pub fn convert_tbl(input_path: &str, output_path: &str, _row_capacity: usize) {
 
         let output_path = format!("{output_path}/{table}.tbl");
         println!("{:?}", output_path);
+        let mut counter = 0;
+
+        if let Ok(lines) = read_lines(input_path) {
+            // Consumes the iterator, returns an (Optional) String
+            for line in lines {
+                if counter >= row_capacity {
+                    break;
+                };
+                counter += 1;
+                if let Ok(ip) = line {
+                    println!("{}", ip);
+                }
+            }
+        }
     }
 }
 
