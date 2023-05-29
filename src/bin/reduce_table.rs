@@ -7,7 +7,7 @@ use std::path::Path;
 #[clap(author, version, about, long_about = None)]
 pub struct Rtconfig {
     /// The number of rows in a table
-    #[arg(long, default_value_t = 100)]
+    #[arg(long, default_value_t = 20)]
     pub row_capacity: usize,
 
     /// Start reading the table at this line
@@ -86,9 +86,15 @@ fn main() {
     let config = Rtconfig::parse();
     println!("{}", config.row_capacity);
 
-    if let Ok(lines) = read_lines("./data/region.tbl") {
+    let mut counter = 0;
+
+    if let Ok(lines) = read_lines("./data/lineitem.tbl") {
         // Consumes the iterator, returns an (Optional) String
         for line in lines {
+            if counter >= config.row_capacity {
+                break;
+            };
+            counter += 1;
             if let Ok(ip) = line {
                 println!("{}", ip);
             }
