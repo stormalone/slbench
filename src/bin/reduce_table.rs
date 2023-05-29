@@ -2,6 +2,7 @@ use clap::Parser;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
+use std::path::PathBuf;
 
 #[derive(clap::Parser, Debug, Clone)]
 #[clap(author, version, about, long_about = None)]
@@ -17,6 +18,14 @@ pub struct Rtconfig {
     /// Stop reading the table at this line
     #[arg(long, default_value_t = 100)]
     pub end_row: usize,
+
+    /// Input path
+    #[arg(value_parser, long = "input", default_value = "./data/")]
+    input_path: PathBuf,
+
+    /// Output path
+    #[arg(value_parser, long = "output", default_value = "./dataout")]
+    output_path: PathBuf,
 }
 
 /*
@@ -111,6 +120,80 @@ where
     let file = File::open(filename)?;
     Ok(io::BufReader::new(file).lines())
 }
+
+/*
+/// Conver tbl (csv) file to parquet
+pub async fn convert_tbl(
+    input_path: &str,
+    output_path: &str,
+    file_format: &str,
+    partitions: usize,
+    batch_size: usize,
+    compression: Compression,
+) -> Result<()> {
+    let output_root_path = Path::new(output_path);
+    for table in TPCH_TABLES {
+        let start = Instant::now();
+        let schema = get_tbl_tpch_table_schema(table);
+
+        let input_path = format!("{input_path}/{table}.tbl");
+        let options = CsvReadOptions::new()
+            .schema(&schema)
+            .has_header(false)
+            .delimiter(b'|')
+            .file_extension(".tbl");
+
+        let config = SessionConfig::new().with_batch_size(batch_size);
+        let ctx = SessionContext::with_config(config);
+
+        // build plan to read the TBL file
+        let mut csv = ctx.read_csv(&input_path, options).await?;
+
+        // Select all apart from the padding column
+        let selection = csv
+            .schema()
+            .fields()
+            .iter()
+            .take(schema.fields.len() - 1)
+            .map(|d| Expr::Column(d.qualified_column()))
+            .collect();
+
+        csv = csv.select(selection)?;
+        // optionally, repartition the file
+        if partitions > 1 {
+            csv = csv.repartition(Partitioning::RoundRobinBatch(partitions))?
+        }
+
+        // create the physical plan
+        let csv = csv.create_physical_plan().await?;
+
+        let output_path = output_root_path.join(table);
+        let output_path = output_path.to_str().unwrap().to_owned();
+
+        println!(
+            "Converting '{}' to {} files in directory '{}'",
+            &input_path, &file_format, &output_path
+        );
+        match file_format {
+            "csv" => ctx.write_csv(csv, output_path).await?,
+            "parquet" => {
+                let props = WriterProperties::builder()
+                    .set_compression(compression)
+                    .build();
+                ctx.write_parquet(csv, output_path, Some(props)).await?
+            }
+            other => {
+                return Err(DataFusionError::NotImplemented(format!(
+                    "Invalid output format: {other}"
+                )));
+            }
+        }
+        println!("Conversion completed in {} ms", start.elapsed().as_millis());
+    }
+
+    Ok(())
+}
+*/
 
 // This takes in a set of big files and reduces them down to a much smaller number of lines.
 // Input parameters include the maximum number of lines a file can have
