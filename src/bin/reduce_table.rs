@@ -132,12 +132,17 @@ where
 }
 
 /// Conver tbl (csv) file to parquet
-pub fn convert_tbl(_input_path: &str, output_path: &str, _row_capacity: usize) {
-    let output_root_path = Path::new(output_path);
-    println!("{:?}", output_root_path);
+pub fn convert_tbl(input_path: &str, output_path: &str, _row_capacity: usize) {
+    //let input_root_path = Path::new(output_path);
+    //let output_root_path = Path::new(output_path);
+    //println!("{:? :?}", input_root_path, output_root_path);
 
     for table in TPCH_TABLES {
-        println!("{:?}", table);
+        let input_path = format!("{input_path}/{table}.tbl");
+        println!("{:?}", input_path);
+
+        let output_path = format!("{output_path}/{table}.tbl");
+        println!("{:?}", output_path);
     }
 }
 
