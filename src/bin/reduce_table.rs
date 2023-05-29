@@ -1,6 +1,6 @@
 use clap::Parser;
 use std::fs::File;
-use std::io::{self, BufRead};
+use std::io::{self, BufRead, LineWriter, Write};
 use std::path::Path;
 use std::path::PathBuf;
 
@@ -128,6 +128,10 @@ pub fn convert_tbl(input_path: &str, output_path: &str, row_capacity: usize) {
 
         let output_path = format!("{output_path}/{table}.tbl");
         println!("{:?}", output_path);
+
+        let output_file = File::create(output_path)?;
+        let mut output_file = LineWriter::new(output_file);
+
         let mut counter = 0;
 
         if let Ok(lines) = read_lines(input_path) {
@@ -139,6 +143,7 @@ pub fn convert_tbl(input_path: &str, output_path: &str, row_capacity: usize) {
                 counter += 1;
                 if let Ok(ip) = line {
                     println!("{}", ip);
+                    output_file.write_all(ip.as_bytes())?;
                 }
             }
         }
