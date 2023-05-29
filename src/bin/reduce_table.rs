@@ -1,3 +1,4 @@
+use clap::Parser;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
@@ -8,6 +9,14 @@ pub struct Rtconfig {
     /// The number of rows in a table
     #[arg(long, default_value_t = 100)]
     pub row_capacity: usize,
+
+    /// Start reading the table at this line
+    #[arg(long, default_value_t = 0)]
+    pub start_row: usize,
+
+    /// Stop reading the table at this line
+    #[arg(long, default_value_t = 100)]
+    pub end_row: usize,
 }
 
 /*
@@ -73,6 +82,10 @@ pub struct Rtconfig {
 
 fn main() {
     // File hosts must exist in current path before this produces output
+
+    let config = Rtconfig::parse();
+    println!("{}", config.row_capacity);
+
     if let Ok(lines) = read_lines("./data/region.tbl") {
         // Consumes the iterator, returns an (Optional) String
         for line in lines {
