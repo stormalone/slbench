@@ -4,6 +4,10 @@ use std::io::{self, BufRead};
 use std::path::Path;
 use std::path::PathBuf;
 
+pub const TPCH_TABLES: &[&str] = &[
+    "part", "supplier", "partsupp", "customer", "orders", "lineitem", "nation", "region",
+];
+
 #[derive(clap::Parser, Debug, Clone)]
 #[clap(author, version, about, long_about = None)]
 pub struct Rtconfig {
@@ -97,6 +101,12 @@ fn main() {
 
     let mut counter = 0;
 
+    convert_tbl(
+        config.input_path.to_str().unwrap(),
+        config.output_path.to_str().unwrap(),
+        config.row_capacity,
+    );
+
     if let Ok(lines) = read_lines("./data/lineitem.tbl") {
         // Consumes the iterator, returns an (Optional) String
         for line in lines {
@@ -119,6 +129,16 @@ where
 {
     let file = File::open(filename)?;
     Ok(io::BufReader::new(file).lines())
+}
+
+/// Conver tbl (csv) file to parquet
+pub fn convert_tbl(_input_path: &str, output_path: &str, _row_capacity: usize) {
+    let output_root_path = Path::new(output_path);
+    println!("{:?}", output_root_path);
+
+    for table in TPCH_TABLES {
+        println!("{:?}", table);
+    }
 }
 
 /*
