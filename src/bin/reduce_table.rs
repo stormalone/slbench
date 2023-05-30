@@ -38,6 +38,8 @@ fn main() {
     let config = Rtconfig::parse();
     println!("{}", config.row_capacity);
 
+    let _ = check_dirs(config.output_path.clone());
+
     let x = convert_tbl(
         config.input_path.to_str().unwrap(),
         config.output_path.to_str().unwrap(),
@@ -45,6 +47,11 @@ fn main() {
     );
 
     println!("{:?}", x);
+}
+
+fn check_dirs(outdir: PathBuf) -> std::io::Result<()> {
+    std::fs::create_dir(outdir)?;
+    Ok(())
 }
 
 // The output is wrapped in a Result to allow matching on errors
