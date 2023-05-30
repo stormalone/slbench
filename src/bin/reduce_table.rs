@@ -40,7 +40,7 @@ fn main() {
 
     let _ = check_dirs(config.output_path.clone());
 
-    let x = convert_tbl(
+    let x = copy_table(
         config.input_path.to_str().unwrap(),
         config.output_path.to_str().unwrap(),
         config.row_capacity,
@@ -64,11 +64,7 @@ where
     Ok(io::BufReader::new(file).lines())
 }
 
-pub fn convert_tbl(
-    input_path: &str,
-    output_path: &str,
-    row_capacity: usize,
-) -> std::io::Result<()> {
+pub fn copy_table(input_path: &str, output_path: &str, row_capacity: usize) -> std::io::Result<()> {
     for table in TPCH_TABLES {
         let input_path = format!("{input_path}/{table}.tbl");
         //println!("{:?}", input_path);
