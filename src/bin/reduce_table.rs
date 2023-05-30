@@ -71,10 +71,10 @@ pub fn convert_tbl(
 ) -> std::io::Result<()> {
     for table in TPCH_TABLES {
         let input_path = format!("{input_path}/{table}.tbl");
-        println!("{:?}", input_path);
+        //println!("{:?}", input_path);
 
         let output_path = format!("{output_path}/{table}.tbl");
-        println!("{:?}", output_path);
+        //println!("{:?}", output_path);
 
         let output_file = File::create(output_path)?;
         let mut output_file = LineWriter::new(output_file);
