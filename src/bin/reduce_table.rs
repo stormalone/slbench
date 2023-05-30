@@ -38,11 +38,13 @@ fn main() {
     let config = Rtconfig::parse();
     println!("{}", config.row_capacity);
 
-    let _ = convert_tbl(
+    let x = convert_tbl(
         config.input_path.to_str().unwrap(),
         config.output_path.to_str().unwrap(),
         config.row_capacity,
     );
+
+    println!("{:?}", x);
 }
 
 // The output is wrapped in a Result to allow matching on errors
