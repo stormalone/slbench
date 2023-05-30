@@ -12,7 +12,7 @@ pub const TPCH_TABLES: &[&str] = &[
 #[clap(author, version, about, long_about = None)]
 pub struct Rtconfig {
     /// The number of rows in a table
-    #[arg(long, default_value_t = 30)]
+    #[arg(long, default_value_t = 11000)]
     pub row_capacity: usize,
 
     /// Start reading the table at this line
@@ -98,3 +98,9 @@ pub fn convert_tbl(
     }
     Ok(())
 }
+
+/*
+References:
+To see the number of lines in a file go to the directory and enter the command
+wc -l *
+*/
