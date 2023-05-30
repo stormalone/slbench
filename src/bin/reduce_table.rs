@@ -148,7 +148,7 @@ pub fn convert_tbl(
                 if let Ok(ip) = line {
                     println!("{}", ip);
                     output_file.write_all(ip.as_bytes())?;
-                    output_file.write_all(b"\n");
+                    output_file.write_all(b"\n")?;
                 }
             }
         }
