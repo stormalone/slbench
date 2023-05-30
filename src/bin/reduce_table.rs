@@ -12,7 +12,7 @@ pub const TPCH_TABLES: &[&str] = &[
 #[clap(author, version, about, long_about = None)]
 pub struct Rtconfig {
     /// The number of rows in a table
-    #[arg(long, default_value_t = 20)]
+    #[arg(long, default_value_t = 30)]
     pub row_capacity: usize,
 
     /// Start reading the table at this line
@@ -99,7 +99,7 @@ fn main() {
     let config = Rtconfig::parse();
     println!("{}", config.row_capacity);
 
-    convert_tbl(
+    let _ = convert_tbl(
         config.input_path.to_str().unwrap(),
         config.output_path.to_str().unwrap(),
         config.row_capacity,
@@ -117,7 +117,11 @@ where
 }
 
 /// Conver tbl (csv) file to parquet
-pub fn convert_tbl(input_path: &str, output_path: &str, row_capacity: usize) {
+pub fn convert_tbl(
+    input_path: &str,
+    output_path: &str,
+    row_capacity: usize,
+) -> std::io::Result<()> {
     //let input_root_path = Path::new(output_path);
     //let output_root_path = Path::new(output_path);
     //println!("{:? :?}", input_root_path, output_root_path);
@@ -144,10 +148,12 @@ pub fn convert_tbl(input_path: &str, output_path: &str, row_capacity: usize) {
                 if let Ok(ip) = line {
                     println!("{}", ip);
                     output_file.write_all(ip.as_bytes())?;
+                    output_file.write_all(b"\n");
                 }
             }
         }
     }
+    Ok(())
 }
 
 /*
