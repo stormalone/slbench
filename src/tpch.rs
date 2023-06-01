@@ -25,8 +25,8 @@ use std::sync::Arc;
 use std::time::Instant;
 
 use datafusion::common::cast::{
-    as_date32_array, as_decimal128_array, as_float64_array, as_int32_array,
-    as_int64_array, as_string_array,
+    as_date32_array, as_decimal128_array, as_float64_array, as_int32_array, as_int64_array,
+    as_string_array,
 };
 use datafusion::common::ScalarValue;
 use datafusion::logical_expr::expr::ScalarFunction;
@@ -491,8 +491,7 @@ pub async fn transform_actual_result(
     let result = result
         .iter()
         .map(|b| {
-            RecordBatch::try_new(result_schema.clone(), b.columns().to_vec())
-                .map_err(|e| e.into())
+            RecordBatch::try_new(result_schema.clone(), b.columns().to_vec()).map_err(|e| e.into())
         })
         .collect::<Result<Vec<_>>>()?;
     let table = Arc::new(MemTable::try_new(result_schema.clone(), vec![result])?);
