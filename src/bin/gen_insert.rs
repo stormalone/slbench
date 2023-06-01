@@ -3,6 +3,7 @@ use csv;
 use std::error::Error;
 use std::path::PathBuf;
 
+//use arrow_schema::{DataType, Schema};
 use slbench::tpch::{get_tpch_table_schema, TPCH_TABLES};
 
 #[derive(clap::Parser, Debug, Clone)]
@@ -54,8 +55,9 @@ fn get_vec_from_file(
     input_path: &str,
     output_path: &str,
 ) -> Result<(), Box<dyn Error>> {
-    let table_schema = get_tpch_table_schema(table_name);
-    println!("{:?}", table_schema);
+    let schema = get_tpch_table_schema(table_name);
+    println!("{:?}", schema);
+    println!("{:?}", schema.fields[0].data_type());
 
     let mut reader = csv::ReaderBuilder::new()
         .delimiter(b'|')

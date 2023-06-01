@@ -1989,6 +1989,7 @@ name = "slbench"
 version = "0.1.0"
 dependencies = [
  "arrow",
+ "arrow-schema",
  "clap 4.3.0",
  "csv",
  "datafusion",
