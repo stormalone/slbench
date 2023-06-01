@@ -3,7 +3,7 @@ name = "datafusion-benchmarks"
 version = "0.1.0"
 authors = ["michael storm angerman"]
 edition = "2021"
-default-run = "read_table"
+default-run = "gen_insert"
 
 [dependencies]
 arrow = { version = "39.0.0", features = ["prettyprint"] }
