@@ -1,8 +1,6 @@
 use clap::Parser;
-use std::fs::File;
-use std::io::{self, BufRead};
-//use std::io::{self, BufRead, LineWriter};
-use std::path::Path;
+use csv;
+use std::error::Error;
 use std::path::PathBuf;
 
 pub const TPCH_TABLES: &[&str] = &[
@@ -39,16 +37,6 @@ fn check_dirs(outdir: PathBuf) -> std::io::Result<()> {
     Ok(())
 }
 
-// The output is wrapped in a Result to allow matching on errors
-// Returns an Iterator to the Reader of the lines of the file.
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
-where
-    P: AsRef<Path>,
-{
-    let file = File::open(filename)?;
-    Ok(io::BufReader::new(file).lines())
-}
-
 pub fn process_values(input_path: &str, output_path: &str) -> std::io::Result<()> {
     for table in TPCH_TABLES {
         println!("\n{}", table);
@@ -56,21 +44,35 @@ pub fn process_values(input_path: &str, output_path: &str) -> std::io::Result<()
         //println!("{:?}", input_path);
 
         let output_path = format!("{output_path}/{table}.tbl");
-        println!("{:?}", output_path);
+        //println!("{:?}", output_path);
 
-        //let output_file = File::create(output_path)?;
-        //let mut output_file = LineWriter::new(output_file);
+        let _ = get_vec_from_file(input_path.as_str(), output_path.as_str());
+    }
+    Ok(())
+}
 
-        if let Ok(lines) = read_lines(input_path) {
-            // Consumes the iterator, returns an (Optional) String
-            for line in lines {
-                if let Ok(ip) = line {
-                    println!("{}", ip);
-                    //output_file.write_all(ip.as_bytes())?;
-                    //output_file.write_all(b"\n")?;
-                }
+fn get_vec_from_file(input_path: &str, output_path: &str) -> Result<(), Box<dyn Error>> {
+    let mut reader = csv::ReaderBuilder::new()
+        .delimiter(b'|')
+        .has_headers(false)
+        .from_path(input_path)?;
+
+    // `.records` return an iterator of the internal
+    // record structure
+    for result in reader.records() {
+        let record: csv::StringRecord = result?;
+        //println!("{:?}", record);
+        let record_iter = record.iter();
+        //let vec1: Vec<_> = record_iter.clone().collect();
+        let mut vec = Vec::new();
+
+        for val in record_iter {
+            if val != "" {
+                vec.push(val);
             }
         }
+        println!("\n{:?}", vec);
     }
+    println!("\n{:?}", output_path);
     Ok(())
 }
