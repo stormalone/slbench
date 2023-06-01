@@ -1,5 +1,5 @@
 [package]
-name = "datafusion-benchmarks"
+name = "slbench"
 version = "0.1.0"
 authors = ["michael storm angerman"]
 edition = "2021"

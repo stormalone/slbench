@@ -3,9 +3,7 @@ use csv;
 use std::error::Error;
 use std::path::PathBuf;
 
-pub const TPCH_TABLES: &[&str] = &[
-    "part", "supplier", "partsupp", "customer", "orders", "lineitem", "nation", "region",
-];
+use slbench::tpch::{get_tpch_table_schema, TPCH_TABLES};
 
 #[derive(clap::Parser, Debug, Clone)]
 #[clap(author, version, about, long_about = None)]
@@ -46,12 +44,19 @@ pub fn process_values(input_path: &str, output_path: &str) -> std::io::Result<()
         let output_path = format!("{output_path}/{table}.tbl");
         //println!("{:?}", output_path);
 
-        let _ = get_vec_from_file(input_path.as_str(), output_path.as_str());
+        let _ = get_vec_from_file(table, input_path.as_str(), output_path.as_str());
     }
     Ok(())
 }
 
-fn get_vec_from_file(input_path: &str, output_path: &str) -> Result<(), Box<dyn Error>> {
+fn get_vec_from_file(
+    table_name: &str,
+    input_path: &str,
+    output_path: &str,
+) -> Result<(), Box<dyn Error>> {
+    let table_schema = get_tpch_table_schema(table_name);
+    println!("{:?}", table_schema);
+
     let mut reader = csv::ReaderBuilder::new()
         .delimiter(b'|')
         .has_headers(false)
