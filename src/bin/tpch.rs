@@ -137,7 +137,9 @@ async fn main() -> Result<()> {
 
     env_logger::init();
     match TpchOpt::from_args() {
-        TpchOpt::Benchmark(DataFusionBenchmark(opt)) => benchmark_datafusion(opt).await.map(|_| ()),
+        TpchOpt::Benchmark(DataFusionBenchmark(opt)) => {
+            benchmark_datafusion(opt).await.map(|_| ())
+        }
         TpchOpt::Convert(opt) => {
             let compression = match opt.compression.as_str() {
                 "none" => Compression::UNCOMPRESSED,
@@ -169,7 +171,9 @@ async fn main() -> Result<()> {
 const TPCH_QUERY_START_ID: usize = 1;
 const TPCH_QUERY_END_ID: usize = 22;
 
-async fn benchmark_datafusion(opt: DataFusionBenchmarkOpt) -> Result<Vec<Vec<RecordBatch>>> {
+async fn benchmark_datafusion(
+    opt: DataFusionBenchmarkOpt,
+) -> Result<Vec<Vec<RecordBatch>>> {
     println!("Running benchmarks with the following options: {opt:?}");
     let query_range = match opt.query {
         Some(query_id) => query_id..=query_id,
@@ -232,7 +236,9 @@ async fn benchmark_query(
         let ms = elapsed.as_secs_f64() * 1000.0;
         millis.push(ms);
         let row_count = result.iter().map(|b| b.num_rows()).sum();
-        println!("Query {query_id} iteration {i} took {ms:.1} ms and returned {row_count} rows");
+        println!(
+            "Query {query_id} iteration {i} took {ms:.1} ms and returned {row_count} rows"
+        );
         query_results.push(QueryResult { elapsed, row_count });
     }
 
@@ -242,7 +248,10 @@ async fn benchmark_query(
     Ok((query_results, result))
 }
 
-async fn register_tables(opt: &DataFusionBenchmarkOpt, ctx: &SessionContext) -> Result<()> {
+async fn register_tables(
+    opt: &DataFusionBenchmarkOpt,
+    ctx: &SessionContext,
+) -> Result<()> {
     for table in TPCH_TABLES {
         let table_provider = {
             get_table(
@@ -259,7 +268,8 @@ async fn register_tables(opt: &DataFusionBenchmarkOpt, ctx: &SessionContext) -> 
             println!("Loading table '{table}' into memory");
             let start = Instant::now();
             let memtable =
-                MemTable::load(table_provider, Some(opt.partitions), &ctx.state()).await?;
+                MemTable::load(table_provider, Some(opt.partitions), &ctx.state())
+                    .await?;
             println!(
                 "Loaded table '{}' into memory in {} ms",
                 table,
@@ -273,7 +283,11 @@ async fn register_tables(opt: &DataFusionBenchmarkOpt, ctx: &SessionContext) -> 
     Ok(())
 }
 
-async fn execute_query(ctx: &SessionContext, sql: &str, debug: bool) -> Result<Vec<RecordBatch>> {
+async fn execute_query(
+    ctx: &SessionContext,
+    sql: &str,
+    debug: bool,
+) -> Result<Vec<RecordBatch>> {
     let plan = ctx.sql(sql).await?;
     let (state, plan) = plan.into_parts();
 
@@ -316,36 +330,36 @@ async fn get_table(
 ) -> Result<Arc<dyn TableProvider>> {
     // Obtain a snapshot of the SessionState
     let state = ctx.state();
-    let (format, path, extension): (Arc<dyn FileFormat>, String, &'static str) = match table_format
-    {
-        // dbgen creates .tbl ('|' delimited) files without header
-        "tbl" => {
-            let path = format!("{path}/{table}.tbl");
+    let (format, path, extension): (Arc<dyn FileFormat>, String, &'static str) =
+        match table_format {
+            // dbgen creates .tbl ('|' delimited) files without header
+            "tbl" => {
+                let path = format!("{path}/{table}.tbl");
 
-            let format = CsvFormat::default()
-                .with_delimiter(b'|')
-                .with_has_header(false);
+                let format = CsvFormat::default()
+                    .with_delimiter(b'|')
+                    .with_has_header(false);
 
-            (Arc::new(format), path, ".tbl")
-        }
-        "csv" => {
-            let path = format!("{path}/{table}");
-            let format = CsvFormat::default()
-                .with_delimiter(b',')
-                .with_has_header(true);
+                (Arc::new(format), path, ".tbl")
+            }
+            "csv" => {
+                let path = format!("{path}/{table}");
+                let format = CsvFormat::default()
+                    .with_delimiter(b',')
+                    .with_has_header(true);
 
-            (Arc::new(format), path, DEFAULT_CSV_EXTENSION)
-        }
-        "parquet" => {
-            let path = format!("{path}/{table}");
-            let format = ParquetFormat::default().with_enable_pruning(Some(true));
+                (Arc::new(format), path, DEFAULT_CSV_EXTENSION)
+            }
+            "parquet" => {
+                let path = format!("{path}/{table}");
+                let format = ParquetFormat::default().with_enable_pruning(Some(true));
 
-            (Arc::new(format), path, DEFAULT_PARQUET_EXTENSION)
-        }
-        other => {
-            unimplemented!("Invalid file format '{}'", other);
-        }
-    };
+                (Arc::new(format), path, DEFAULT_PARQUET_EXTENSION)
+            }
+            other => {
+                unimplemented!("Invalid file format '{}'", other);
+            }
+        };
 
     let options = ListingOptions::new(format)
         .with_file_extension(extension)
@@ -503,7 +517,8 @@ mod tests {
                     actual += "\n";
                 }
                 use std::fmt::Write as _;
-                write!(actual, "{}", pretty::pretty_format_batches(&result_batch)?).unwrap();
+                write!(actual, "{}", pretty::pretty_format_batches(&result_batch)?)
+                    .unwrap();
                 // write to file for debugging
                 // use std::io::Write;
                 // let mut file = File::create(format!("expected-plans/q{}.txt", query))?;
@@ -543,7 +558,10 @@ mod tests {
             let table = table.to_string();
             let schema = get_tpch_table_schema(&table);
             let mem_table = MemTable::try_new(Arc::new(schema), vec![])?;
-            ctx.register_table(TableReference::from(table.as_str()), Arc::new(mem_table))?;
+            ctx.register_table(
+                TableReference::from(table.as_str()),
+                Arc::new(mem_table),
+            )?;
         }
         Ok(ctx)
     }
@@ -998,8 +1016,11 @@ mod ci {
                                 Box::new(trim(col(Field::name(field)))),
                                 DataType::Float64,
                             )));
-                            Expr::Cast(Cast::new(inner_cast, Field::data_type(field).to_owned()))
-                                .alias(Field::name(field))
+                            Expr::Cast(Cast::new(
+                                inner_cast,
+                                Field::data_type(field).to_owned(),
+                            ))
+                            .alias(Field::name(field))
                         }
                         _ => Expr::Cast(Cast::new(
                             Box::new(trim(col(Field::name(field)))),
@@ -1034,15 +1055,16 @@ mod ci {
         // assert schema data types match
         let transformed_fields = &transformed[0].schema().fields;
         let expected_fields = &expected[0].schema().fields;
-        let schema_matches = transformed_fields
-            .iter()
-            .zip(expected_fields.iter())
-            .all(|(t, e)| match t.data_type() {
-                DataType::Decimal128(_, _) => {
-                    matches!(e.data_type(), DataType::Decimal128(_, _))
-                }
-                data_type => data_type == e.data_type(),
-            });
+        let schema_matches =
+            transformed_fields
+                .iter()
+                .zip(expected_fields.iter())
+                .all(|(t, e)| match t.data_type() {
+                    DataType::Decimal128(_, _) => {
+                        matches!(e.data_type(), DataType::Decimal128(_, _))
+                    }
+                    data_type => data_type == e.data_type(),
+                });
         if !schema_matches {
             panic!(
                 "expected_fields: {:?}\ntransformed_fields: {:?}",
@@ -1069,15 +1091,23 @@ mod ci {
                     (ScalarValue::Float64(Some(l)), ScalarValue::Float64(Some(r))) => {
                         // allow for rounding errors until we move to decimal types
                         if (l - r).abs() > tolerance {
-                            panic!("Expected: {}; Actual: {}; Tolerance: {}", l, r, tolerance)
+                            panic!(
+                                "Expected: {}; Actual: {}; Tolerance: {}",
+                                l, r, tolerance
+                            )
                         }
                     }
                     (
                         ScalarValue::Decimal128(Some(l), _, s),
                         ScalarValue::Decimal128(Some(r), _, _),
                     ) => {
-                        if ((l - r) as f64 / 10_i32.pow(*s as u32) as f64).abs() > tolerance {
-                            panic!("Expected: {}; Actual: {}; Tolerance: {}", l, r, tolerance)
+                        if ((l - r) as f64 / 10_i32.pow(*s as u32) as f64).abs()
+                            > tolerance
+                        {
+                            panic!(
+                                "Expected: {}; Actual: {}; Tolerance: {}",
+                                l, r, tolerance
+                            )
                         }
                     }
                     (l, r) => assert_eq!(format!("{:?}", l), format!("{:?}", r)),
@@ -1089,7 +1119,8 @@ mod ci {
     }
 
     fn get_tpch_data_path() -> Result<String> {
-        let path = std::env::var("TPCH_DATA").unwrap_or_else(|_| "benchmarks/data".to_string());
+        let path =
+            std::env::var("TPCH_DATA").unwrap_or_else(|_| "benchmarks/data".to_string());
         if !Path::new(&path).exists() {
             return Err(DataFusionError::Execution(format!(
                 "Benchmark data not found (set TPCH_DATA env var to override): {}",
