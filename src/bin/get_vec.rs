@@ -13,14 +13,15 @@ fn get_vec_from_file(path: &str) -> Result<(), Box<dyn Error>> {
         let record: csv::StringRecord = result?;
         //println!("{:?}", record);
         let record_iter = record.iter();
-        let mut vec: Vec<_> = record_iter.clone().collect();
+        //let vec1: Vec<_> = record_iter.clone().collect();
+        let mut vec = Vec::new();
 
         for val in record_iter {
             if val != "" {
                 vec.push(val);
             }
         }
-        println!("{:?}", vec);
+        println!("\n{:?}", vec);
     }
 
     Ok(())
