@@ -88,9 +88,7 @@ fn get_vec_from_file(
             }
         }
 
-        let why = vec.concat();
-
-        output_file.write_all(why.as_bytes())?;
+        output_file.write_all(vec.concat().as_bytes())?;
         output_file.write_all(b"\n")?;
 
         // this prints each item of the vector on a separate line
