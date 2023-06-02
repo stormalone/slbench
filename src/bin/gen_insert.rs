@@ -78,7 +78,11 @@ fn get_vec_from_file(
                 vec.push(val);
             }
         }
-        println!("\n{:?}", vec);
+        for i in vec.iter() {
+            println!("{}", i);
+        }
+        // this prints double quotes which we do not want
+        // println!("\n{:?}", vec);
     }
     println!("\n{:?}", output_path);
     Ok(())
