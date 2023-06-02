@@ -59,7 +59,7 @@ fn get_vec_from_file(
 ) -> Result<(), Box<dyn Error>> {
     let schema = get_tpch_table_schema(table_name);
     println!("{:?}", schema);
-    println!("{:?}", schema.fields[0].data_type());
+    //println!("{:?}", schema.fields[0].data_type());
 
     let mut reader = csv::ReaderBuilder::new()
         .delimiter(b'|')
@@ -81,8 +81,9 @@ fn get_vec_from_file(
         //let vec1: Vec<_> = record_iter.clone().collect();
         let mut vec = Vec::new();
 
-        for val in record_iter {
+        for (i, val) in record_iter.enumerate() {
             if val != "" {
+                println!("{:?}", schema.fields[i].data_type());
                 vec.push(val);
                 vec.push(" ");
             }
