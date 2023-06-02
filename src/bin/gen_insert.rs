@@ -84,6 +84,7 @@ fn get_vec_from_file(
         for val in record_iter {
             if val != "" {
                 vec.push(val);
+                vec.push(" ");
             }
         }
 
