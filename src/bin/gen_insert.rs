@@ -44,7 +44,7 @@ pub fn process_values(input_path: &str, output_path: &str) -> std::io::Result<()
         let input_path = format!("{input_path}/{table}.tbl");
         //println!("{:?}", input_path);
 
-        let output_path = format!("{output_path}/{table}.tbl");
+        let output_path = format!("{output_path}");
         //println!("{:?}", output_path);
 
         let _ = get_vec_from_file(table, input_path.as_str(), output_path.as_str());
@@ -67,9 +67,9 @@ fn get_vec_from_file(
         .from_path(input_path)?;
 
     let output_path = format!("{output_path}/{table_name}.tbl");
-    //println!("{:?}", output_path);
+    println!("{:?}", output_path);
 
-    let output_file = File::create(output_path)?;
+    let output_file = File::create(output_path.clone())?;
     let mut output_file = LineWriter::new(output_file);
 
     // `.records` return an iterator of the internal
@@ -87,7 +87,9 @@ fn get_vec_from_file(
             }
         }
 
-        output_file.write_all(vec)?;
+        let why = vec.concat();
+
+        output_file.write_all(why.as_bytes())?;
         output_file.write_all(b"\n")?;
 
         // this prints each item of the vector on a separate line
