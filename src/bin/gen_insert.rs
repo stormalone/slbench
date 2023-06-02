@@ -1,6 +1,8 @@
 use clap::Parser;
 use csv;
 use std::error::Error;
+use std::fs::File;
+use std::io::{LineWriter, Write};
 use std::path::PathBuf;
 
 //use arrow_schema::{DataType, Schema};
@@ -64,6 +66,12 @@ fn get_vec_from_file(
         .has_headers(false)
         .from_path(input_path)?;
 
+    let output_path = format!("{output_path}/{table_name}.tbl");
+    //println!("{:?}", output_path);
+
+    let output_file = File::create(output_path)?;
+    let mut output_file = LineWriter::new(output_file);
+
     // `.records` return an iterator of the internal
     // record structure
     for result in reader.records() {
@@ -78,9 +86,16 @@ fn get_vec_from_file(
                 vec.push(val);
             }
         }
+
+        output_file.write_all(vec)?;
+        output_file.write_all(b"\n")?;
+
+        // this prints each item of the vector on a separate line
+        /*
         for i in vec.iter() {
             println!("{}", i);
         }
+        */
         // this prints double quotes which we do not want
         // println!("\n{:?}", vec);
     }
