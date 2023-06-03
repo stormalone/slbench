@@ -4,7 +4,7 @@ use std::error::Error;
 use std::path::PathBuf;
 
 //use arrow_schema::{DataType, Schema};
-use slbench::tpch::{get_tpch_table_schema, TPCH_TABLES};
+use datafusion_benchmarks::tpch::{get_tpch_table_schema, TPCH_TABLES};
 
 #[derive(clap::Parser, Debug, Clone)]
 #[clap(author, version, about, long_about = None)]

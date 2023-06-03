@@ -5,8 +5,8 @@ use std::fs::File;
 use std::io::{LineWriter, Write};
 use std::path::PathBuf;
 
-//use arrow_schema::{DataType, Schema};
-use slbench::tpch::{get_tpch_table_schema, TPCH_TABLES};
+use arrow_schema::DataType;
+use datafusion_benchmarks::tpch::{get_tpch_table_schema, TPCH_TABLES};
 
 #[derive(clap::Parser, Debug, Clone)]
 #[clap(author, version, about, long_about = None)]
@@ -83,8 +83,18 @@ fn get_vec_from_file(
 
         for (i, val) in record_iter.enumerate() {
             if val != "" {
-                println!("{:?}", schema.fields[i].data_type());
-                vec.push(val);
+                let datatype = schema.fields[i].data_type();
+                println!("{:?}", datatype);
+                let answer = should_val_be_a_string(datatype.clone());
+                // if yes then add the tickmarks around the string, date
+                if answer {
+                    vec.push("'");
+                    vec.push(val);
+                    vec.push("'");
+                // if no then we do not need tick marks around the value
+                } else {
+                    vec.push(val);
+                }
                 vec.push(" ");
             }
         }
@@ -103,4 +113,11 @@ fn get_vec_from_file(
     }
     println!("\n{:?}", output_path);
     Ok(())
+}
+
+fn should_val_be_a_string(datatype: DataType) -> bool {
+    if datatype.equals_datatype(&DataType::Utf8) {
+        return true;
+    }
+    return false;
 }
