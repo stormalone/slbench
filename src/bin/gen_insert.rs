@@ -119,5 +119,8 @@ fn should_val_be_a_string(datatype: DataType) -> bool {
     if datatype.equals_datatype(&DataType::Utf8) {
         return true;
     }
+    if datatype.equals_datatype(&DataType::Date32) {
+        return true;
+    }
     return false;
 }
