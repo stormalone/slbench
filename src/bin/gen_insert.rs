@@ -20,6 +20,10 @@ pub struct Giconfig {
     output_path: PathBuf,
 }
 
+pub const INSERT0: &str = "flight_sql_client --host 0.0.0.0 --port 50060 --username admin --password password \"insert into ";
+pub const INSERT1: &str = " values (";
+pub const INSERT2: &str = ")\"";
+
 fn main() {
     let config = Giconfig::parse();
 
@@ -66,7 +70,7 @@ fn get_vec_from_file(
         .has_headers(false)
         .from_path(input_path)?;
 
-    let output_path = format!("{output_path}/{table_name}.tbl");
+    let output_path = format!("{output_path}/{table_name}.sh");
     println!("{:?}", output_path);
 
     let output_file = File::create(output_path.clone())?;
@@ -81,6 +85,10 @@ fn get_vec_from_file(
         //let vec1: Vec<_> = record_iter.clone().collect();
         let mut vec = Vec::new();
 
+        vec.push(INSERT0);
+        vec.push(table_name);
+        vec.push(INSERT1);
+
         for (i, val) in record_iter.enumerate() {
             if val != "" {
                 let datatype = schema.fields[i].data_type();
@@ -91,14 +99,19 @@ fn get_vec_from_file(
                     vec.push("'");
                     vec.push(val);
                     vec.push("'");
+                    vec.push(",");
                 // if no then we do not need tick marks around the value
                 } else {
                     vec.push(val);
+                    vec.push(",");
                 }
                 vec.push(" ");
             }
         }
 
+        vec.pop(); // remove the last space
+        vec.pop(); // remove the last comma
+        vec.push(INSERT2);
         output_file.write_all(vec.concat().as_bytes())?;
         output_file.write_all(b"\n")?;
 
